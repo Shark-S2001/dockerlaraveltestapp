@@ -403,8 +403,8 @@ class OrdersController extends Controller
    public function select_recent_orders(Request $request){
         $userID = $request->post('user_id');
 
-        $sql = "SELECT order_no,customer_name,ROUND(SUM(amount),0)AS orderTotals,status_name,createdBy FROM route_order_details LEFT JOIN(SELECT order_num,customer_num,order_status,`user_id` FROM route_master WHERE `user_id`='$userID')MT  ON route_order_details.order_no=MT.order_num LEFT JOIN(SELECT customer_num,customer_name FROM customer)CT ON MT.customer_num=CT.customer_num
-        LEFT JOIN (SELECT status_code,status_name FROM route_order_status)RST ON RST.status_code=MT.order_status LEFT JOIN (SELECT ID,username AS createdBy FROM user WHERE id='$userID')UT ON UT.ID=MT.user_id WHERE MT.user_id='$userID'  GROUP BY order_no";
+        $sql = "SELECT order_no,customer_name,ROUND(SUM(amount),0)AS orderTotals,status_name,createdBy FROM route_order_details LEFT JOIN(SELECT order_num,customer_num,order_status,`user_id` FROM route_master WHERE `user_id`='$userID' AND DATE(route_master.create_time)=DATE(NOW()))MT  ON route_order_details.order_no=MT.order_num LEFT JOIN(SELECT customer_num,customer_name FROM customer)CT ON MT.customer_num=CT.customer_num
+        LEFT JOIN (SELECT status_code,status_name FROM route_order_status)RST ON RST.status_code=MT.order_status LEFT JOIN (SELECT ID,username AS createdBy FROM user WHERE id='$userID')UT ON UT.ID=MT.user_id WHERE MT.user_id='$userID' AND DATE(route_order_details.create_time)=DATE(NOW()) GROUP BY order_no";
 
         \DB::statement("SET SQL_MODE=''");
         $recentSummary=DB::select(DB::raw($sql)); 
